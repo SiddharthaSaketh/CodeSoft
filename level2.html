@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Board</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="bundle.js"></script>
+  </body>
+</html>
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './pages/Home';
+import JobListings from './pages/JobListings';
+import JobDetail from './pages/JobDetail';
+import Dashboard from './pages/Dashboard';
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/jobs" element={<JobListings />} />
+        <Route path="/jobs/:id" element={<JobDetail />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
+import React from 'react';
+
+const Home = () => {
+  return (
+    <div>
+      <h1>Welcome to Job Board</h1>
+      <p>Find the best jobs posted by top employers. Apply now!</p>
+      {/* Add featured jobs here */}
+    </div>
+  );
+};
+
+export default Home;
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+
+const JobListings = () => {
+  const [jobs, setJobs] = useState([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/jobs')
+      .then(response => {
+        setJobs(response.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }, []);
+
+  return (
+    <div>
+      <h1>Job Listings</h1>
+      <ul>
+        {jobs.map(job => (
+          <li key={job._id}>
+            <Link to={`/jobs/${job._id}`}>{job.title}</Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default JobListings;
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
+
+const JobDetail = () => {
+  const { id } = useParams();
+  const [job, setJob] = useState({});
+
+  useEffect(() => {
+    axios.get(`http://localhost:5000/api/jobs/${id}`)
+      .then(response => {
+        setJob(response.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }, [id]);
+
+  return (
+    <div>
+      <h1>{job.title}</h1>
+      <p>{job.description}</p>
+      <p>{job.company}</p>
+      <p>{job.location}</p>
+      {/* Job application form can go here */}
+    </div>
+  );
+};
+
+export default JobDetail;
+import React from 'react';
+
+const Dashboard = () => {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      <p>Manage your profile and job postings.</p>
+      {/* Add forms for job postings or applications */}
+    </div>
+  );
+};
+
+export default Dashboard;

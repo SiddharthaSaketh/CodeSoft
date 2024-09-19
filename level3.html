@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .project {
+            border: 1px solid #ded9d9;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .task {
+            margin-left: 20px;
+        }
+        .task input {
+            margin-right: 10px;
+        }
+        button {
+            margin-top: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Project Management Tool</h1>
+
+    <form id="projectForm">
+        <input type="text" id="projectName" placeholder="Enter project name" required>
+        <button type="submit">Add Project</button>
+    </form>
+
+    <hr>
+
+    <div id="projectsContainer"></div>
+
+    <script>
+
+        const projects = [];
+
+        function renderProjects() {
+            const projectsContainer = document.getElementById('projectsContainer');
+            projectsContainer.innerHTML = '';
+
+            projects.forEach((project, projectIndex) => {
+                const projectDiv = document.createElement('div');
+                projectDiv.classList.add('project');
+
+                const projectTitle = document.createElement('h2');
+                projectTitle.innerText = project.name;
+                projectDiv.appendChild(projectTitle);
+
+                project.tasks.forEach((task, taskIndex) => {
+                    const taskDiv = document.createElement('div');
+                    taskDiv.classList.add('task');
+
+                    const taskCheckbox = document.createElement('input');
+                    taskCheckbox.type = 'checkbox';
+                    taskCheckbox.checked = task.status === 'Completed';
+                    taskCheckbox.addEventListener('change', () => toggleTaskStatus(projectIndex, taskIndex));
+                    taskDiv.appendChild(taskCheckbox);
+
+                    const taskText = document.createElement('span');
+                    taskText.innerText = `${task.title} - Assigned to: ${task.assignedTo} - Deadline: ${task.deadline}`;
+                    taskDiv.appendChild(taskText);
+
+                    projectDiv.appendChild(taskDiv);
+                });
+
+                const taskForm = document.createElement('form');
+                taskForm.innerHTML = `
+                    <input type="text" placeholder="Task title" required>
+                    <input type="text" placeholder="Assign to" required>
+                    <input type="date" required>
+                    <button type="submit">Add Task</button>
+                `;
+                taskForm.addEventListener('submit', (e) => addTask(e, projectIndex));
+                projectDiv.appendChild(taskForm);
+
+                projectsContainer.appendChild(projectDiv);
+            });
+        }
+
+        document.getElementById('projectForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const projectName = document.getElementById('projectName').value;
+
+            projects.push({
+                name: projectName,
+                tasks: [],
+            });
+
+            document.getElementById('projectForm').reset();
+            renderProjects();
+        });
+
+        function addTask(e, projectIndex) {
+            e.preventDefault();
+            const taskTitle = e.target[0].value;
+            const assignedTo = e.target[1].value;
+            const deadline = e.target[2].value;
+
+            projects[projectIndex].tasks.push({
+                title: taskTitle,
+                assignedTo: assignedTo,
+                deadline: deadline,
+                status: 'Not Started',
+            });
+
+            renderProjects();
+        }
+
+        function toggleTaskStatus(projectIndex, taskIndex) {
+            const task = projects[projectIndex].tasks[taskIndex];
+            task.status = task.status === 'Completed' ? 'Not Started' : 'Completed';
+
+            renderProjects(); 
+        }
+    </script>
+
+</body>
+</html>
